@@ -1,5 +1,3 @@
-// -*- mode: C++; c-indent-level: 4; c-basic-offset: 4; indent-tabs-mode: nil; -*-
-
 // [[Rcpp::plugins(cpp11)]]
 // [[Rcpp::depends(BH)]]
 
@@ -17,34 +15,43 @@ struct container_hash {
 typedef std::vector<double> Double_vector;
 typedef std::vector<std::string> String_vector;
 
-typedef std::unordered_map<double, SEXP> Double_map;
-typedef std::unordered_map<std::string, SEXP> String_map;
-typedef std::unordered_map<Double_vector, SEXP, container_hash<Double_vector> > Double_vector_map;
-typedef std::unordered_map<String_vector, SEXP, container_hash<String_vector> > String_vector_map;
+template<class T>
+using Double_map = std::unordered_map<double, T>;
 
+template<class T>
+using String_map = std::unordered_map<std::string, T>;
+
+template<class T>
+using Double_vector_map = std::unordered_map<Double_vector, T, container_hash<Double_vector> >;
+
+template<class T>
+using String_vector_map = std::unordered_map<String_vector, T, container_hash<String_vector> >;
+
+
+template<class T>
 class Dict {
-  private:
+  protected:
 
-    Double_vector_map double_vector_map;
-    Double_map double_map;
+    Double_vector_map<T> double_vector_map;
+    Double_map<T> double_map;
 
-    String_vector_map string_vector_map;
-    String_map string_map;
+    String_vector_map<T> string_vector_map;
+    String_map<T> string_map;
 
-public:
+  public:
 
-    SEXP get(SEXP& key) {
+    T get(SEXP& key) {
 
       switch( TYPEOF(key) ) {
         case REALSXP: {
           Rcpp::NumericVector nv(key);
           if (nv.size() == 1) {
-            Double_map::const_iterator it = double_map.find(nv.at(0));
+            typename Double_map<T>::const_iterator it = double_map.find(nv.at(0));
             if (it != double_map.end())
               return it->second;
           } else {
             Double_vector v(nv.begin(), nv.end());
-            Double_vector_map::const_iterator it = double_vector_map.find(v);
+            typename Double_vector_map<T>::const_iterator it = double_vector_map.find(v);
             if (it != double_vector_map.end())
               return it->second;
           }
@@ -54,12 +61,12 @@ public:
         case STRSXP: {
           Rcpp::StringVector sv(key);
           if (sv.size() == 1) {
-            String_map::const_iterator it = string_map.find(Rcpp::as<std::string>(sv.at(0)));
+            typename String_map<T>::const_iterator it = string_map.find(Rcpp::as<std::string>(sv.at(0)));
             if (it != string_map.end())
               return it->second;
           } else {
             String_vector v(sv.begin(), sv.end());
-            String_vector_map::const_iterator it = string_vector_map.find(v);
+            typename String_vector_map<T> ::const_iterator it = string_vector_map.find(v);
             if (it != string_vector_map.end())
               return it->second;
           }
@@ -73,7 +80,7 @@ public:
       return Rcpp::wrap(NA_LOGICAL);
     }
 
-    void set(SEXP& key, SEXP& value) {
+    void set(SEXP& key, T& value) {
 
       switch( TYPEOF(key) ) {
 
@@ -108,15 +115,99 @@ public:
 
 };
 
+class NumVecDict : private Dict<Rcpp::NumericVector> {
+
+public:
+
+  Rcpp::NumericVector get(SEXP& key) {
+    return Dict<Rcpp::NumericVector>::get(key);
+  }
+
+  void set(SEXP& key, Rcpp::NumericVector& value) {
+    Dict<Rcpp::NumericVector>::set(key, value);
+  }
+
+  void append_number(SEXP& key, double value) {
+
+    switch( TYPEOF(key) ) {
+    case REALSXP: {
+      Rcpp::NumericVector nv(key);
+      if (nv.size() == 1) {
+        Double_map<Rcpp::NumericVector>::iterator it = double_map.find(nv.at(0));
+        if (it != double_map.end()) {
+          it->second.push_back(value);
+        } else {
+          Rcpp::NumericVector vv;
+          vv.push_back(value);
+          double_map[nv.at(0)] = vv;
+        }
+
+      } else {
+        Double_vector v(nv.begin(), nv.end());
+        Double_vector_map<Rcpp::NumericVector>::iterator it = double_vector_map.find(v);
+        if (it != double_vector_map.end()) {
+          it->second.push_back(value);
+        } else {
+          Rcpp::NumericVector vv;
+          vv.push_back(value);
+          double_vector_map[v] = vv;
+        }
+      }
+      break;
+    }
+    case STRSXP: {
+      Rcpp::StringVector sv(key);
+      if (sv.size() == 1) {
+        String_map<Rcpp::NumericVector>::iterator it = string_map.find(Rcpp::as<std::string>(sv.at(0)));
+        if (it != string_map.end()) {
+          it->second.push_back(value);
+        } else {
+          Rcpp::NumericVector vv;
+          vv.push_back(value);
+          string_map[Rcpp::as<std::string>(sv.at(0))] = vv;
+        }
+
+      } else {
+        String_vector v(sv.begin(), sv.end());
+        String_vector_map<Rcpp::NumericVector>::iterator it = string_vector_map.find(v);
+        if (it != string_vector_map.end()) {
+          it->second.push_back(value);
+        } else {
+          Rcpp::NumericVector vv;
+          vv.push_back(value);
+          string_vector_map[v] = vv;
+        }
+      }
+      break;
+    }
+
+    default:
+      Rcpp::stop("incompatible SEXP encountered");
+    }
+  }
+
+};
+
 RCPP_MODULE(dict_module){
     using namespace Rcpp ;
 
-    class_<Dict>("Dict")
+    class_< Dict<SEXP> >("Dict")
 
     .constructor()
 
-    .method( "get", &Dict::get )
-    .method( "set", &Dict::set )
+    .method( "get", &Dict<SEXP>::get )
+    .method( "set", &Dict<SEXP>::set )
 
     ;
+
+    class_< NumVecDict >("NumVecDict")
+
+      .constructor()
+
+      .method( "get", &NumVecDict::get )
+      .method( "set", &NumVecDict::set )
+      .method( "append_number", &NumVecDict::append_number )
+
+      ;
+
 }

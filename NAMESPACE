@@ -1,3 +1,4 @@
 useDynLib(dict)
 import(methods, Rcpp)
 export(dict)
+export(numvecdict)
