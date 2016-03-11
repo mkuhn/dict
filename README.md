@@ -15,6 +15,8 @@ if (!require("devtools")) install.packages("devtools")
 devtools::install_github("mkuhn/dict")
 ```
 
+This has been tested on Mac OS X (using clang) and Ubuntu (using gcc 4.8). Older versions of gcc might not work, due to incomplete support of C++11.
+
 ### Usage
 
 Usage of `dict`:
