@@ -4,9 +4,11 @@ warnings_are_errors: false
 sudo: false
 compiler:
   - gcc
+
 before_install:
   - mkdir ~/.R
   - echo -e "CC=gcc-4.8\nCXX=g++-4.8\n" > ~/.R/Makevars
+
 addons:
   apt:
     sources:
@@ -14,3 +16,14 @@ addons:
     packages:
     - gcc-4.8
     - g++-4.8
+
+r_github_packages:
+  - jimhester/covr
+
+after_success:
+  - Rscript -e 'library(covr);codecov()'
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
