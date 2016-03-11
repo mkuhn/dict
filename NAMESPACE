@@ -1,4 +1,3 @@
 useDynLib(dict)
-exportPattern("^[[:alpha:]]+")
 import(methods, Rcpp)
 export(dict)
