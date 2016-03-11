@@ -1,0 +1,4 @@
+
+dict <- function() {
+  new(Dict)
+}

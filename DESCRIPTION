@@ -8,4 +8,4 @@ Maintainer: Your Name <your@email.com>
 Description: More about what it does (maybe more than one line)
 License: GPL (>= 2)
 Imports: methods, Rcpp (>= 0.12.3.2)
-LinkingTo: Rcpp
+LinkingTo: Rcpp, BH
