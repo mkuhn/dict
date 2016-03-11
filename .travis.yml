@@ -4,8 +4,8 @@ warnings_are_errors: false
 sudo: false
 compiler:
   - gcc
-install:
-- CXX="g++-4.8" CC="gcc-4.8"
+before_install:
+  - echo -e "CC=gcc-4.8\nCXX=g++-4.8\n" > ~/.R/Makevars
 addons:
   apt:
     sources:
