@@ -26,11 +26,15 @@ library(dict)
 
 d <- dict()
 
-d$set(1, 42)
-d$set(c(2, 3), "Hello!")
-d$set("foo", "bar")
-d$get(1)
-d$get(c(2, 3))
+d[[1]] <- 42
+d[[c(2, 3)]] <- "Hello!"
+d[["foo"]] <- "bar"
+d[[1]]
+d[[c(2, 3)]]
+d$get("not here", "default")
+
+# [[ ]] gives an error for unknown keys
+d[["?"]]
 
 ```
 
@@ -43,13 +47,13 @@ library(dict)
 d <- numvecdict()
 
 # initialize with vector
-d$set(c(2, 3), c(1,2,3))
-d$append_number( c(2, 3), 4)
-d$get(c(2, 3) )
+d[[c(2, 3)]] <- c(1,2,3)
+d$append_number(c(2, 3), 4)
+d[[c(2, 3)]]
 
 # if the key doesn't exist: create new vector
 d$append_number(1, 23)
-d$get(1)
+d[[1]]
 
 ```
 

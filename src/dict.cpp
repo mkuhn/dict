@@ -38,9 +38,9 @@ class Dict {
     String_vector_map<T> string_vector_map;
     String_map<T> string_map;
 
-  public:
+    const SEXP NA = Rcpp::wrap(NA_LOGICAL);
 
-    T get(SEXP& key) {
+    T get_item(SEXP& key, const SEXP& default_value, bool stop_if_missing) {
 
       switch( TYPEOF(key) ) {
         case INTSXP:
@@ -79,7 +79,23 @@ class Dict {
           Rcpp::stop("incompatible SEXP encountered");
       }
 
-      return Rcpp::wrap(NA_LOGICAL);
+      if (stop_if_missing) {
+        Rcpp::Rcout << "Key not found: ";
+        Rcpp::print(key);
+        Rcpp::stop("Key error!");
+      }
+
+      return default_value;
+    }
+
+  public:
+
+    T get_with_default(SEXP& key, SEXP& default_value) {
+      return get_item(key, default_value, false);
+    }
+
+    T get_or_stop(SEXP& key) {
+      return get_item(key, NA, true);
     }
 
     void set(SEXP& key, T& value) {
@@ -122,8 +138,12 @@ class NumVecDict : private Dict<Rcpp::NumericVector> {
 
 public:
 
-  Rcpp::NumericVector get(SEXP& key) {
-    return Dict<Rcpp::NumericVector>::get(key);
+  Rcpp::NumericVector get_with_default(SEXP& key, SEXP& default_value) {
+    return Dict<Rcpp::NumericVector>::get_with_default(key, default_value);
+  }
+
+  Rcpp::NumericVector get_or_stop(SEXP& key) {
+    return Dict<Rcpp::NumericVector>::get_or_stop(key);
   }
 
   void set(SEXP& key, Rcpp::NumericVector& value) {
@@ -199,7 +219,9 @@ RCPP_MODULE(dict_module){
 
     .constructor()
 
-    .method( "get", &Dict<SEXP>::get )
+    .method( "[[", &Dict<SEXP>::get_or_stop )
+    .method( "get_with_default", &Dict<SEXP>::get_with_default )
+    .method( "[[<-", &Dict<SEXP>::set )
     .method( "set", &Dict<SEXP>::set )
 
     ;
@@ -208,7 +230,9 @@ RCPP_MODULE(dict_module){
 
       .constructor()
 
-      .method( "get", &NumVecDict::get )
+      .method( "[[", &NumVecDict::get_or_stop )
+      .method( "get_with_default", &NumVecDict::get_with_default )
+      .method( "[[<-", &NumVecDict::set )
       .method( "set", &NumVecDict::set )
       .method( "append_number", &NumVecDict::append_number )
 

@@ -2,7 +2,7 @@ context("Dict test")
 
 test_that("Numbers as keys", {
   d <- dict()
-  expect_equal( d$get(1), as.numeric(NA) )
+  expect_equal( d$get(1), NA )
   d$set(1, 23)
   d$set(-0.5, "test")
   expect_equal( d$get(1), 23 )
@@ -13,7 +13,7 @@ test_that("Numbers as keys", {
 
 test_that("Vectors of numbers as keys", {
   d <- dict()
-  expect_equal( d$get(c(1,2)), as.numeric(NA) )
+  expect_equal( d$get(c(1,2)), NA )
   d$set(1, 23)
   d$set(c(-0.5, 0.5), "test")
   expect_equal( d$get(1), 23 )
@@ -22,7 +22,7 @@ test_that("Vectors of numbers as keys", {
 
 test_that("Strings as keys", {
   d <- dict()
-  expect_equal( d$get("1"), as.numeric(NA) )
+  expect_equal( d$get("1"), NA )
   d$set("1", 23)
   d$set("A", "test")
   expect_equal( d$get("1"), 23 )
@@ -31,7 +31,7 @@ test_that("Strings as keys", {
 
 test_that("Vectors of strings as keys", {
   d <- dict()
-  expect_equal( d$get(c("1","2")), as.numeric(NA) )
+  expect_equal( d$get(c("1","2")), NA )
   d$set("1", 23)
   d$set(c("A", "B"), "test")
   expect_equal( d$get("1"), 23 )
@@ -46,6 +46,19 @@ test_that("Mixed keys", {
   expect_equal( d$get(1), 23 )
   expect_equal( d$get("1"), 42 )
   expect_equal( d$get(c("A", "B")), "test" )
+})
+
+test_that("[[ ]] syntax", {
+  d <- dict()
+  d[[1]] <-  23
+  d[["1"]] <- 42
+  d[[ c("A", "B") ]] <- "test"
+  expect_equal( d[[1]], 23 )
+  expect_equal( d[["1"]], 42 )
+  expect_equal( d[[c("A", "B")]], "test" )
+  expect_equal( d$get("not here"), NA )
+  expect_equal( d$get("not here", "default"), "default" )
+  expect_error( d[["not here"]] )
 })
 
 test_that("Append numbers: numbers as keys", {
@@ -92,6 +105,10 @@ test_that("Directly set vector", {
   d <- numvecdict()
   d$set(1, 2)
   expect_equal( d$get(1), c(2) )
+
+  d[[ c("a", "b") ]] <- c(1, 2)
+  expect_equal( d[[ c("a", "b") ]], c(1, 2) )
+
   d$set(1, c(2,3))
   expect_equal( d$get(1), c(2,3) )
   d$append_number(1, 4)
