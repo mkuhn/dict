@@ -1,11 +1,12 @@
 Package: dict
 Type: Package
-Title: What the package does (short line)
-Version: 1.0
+Title: Dictionary with arbitrary keys and values
+Version: 0.1
 Date: 2016-03-10
-Author: Your Name
-Maintainer: Your Name <your@email.com>
-Description: More about what it does (maybe more than one line)
+Author: Michael Kuhn
+Maintainer: Michael Kuhn <michael.kuhn@gmail.com>
+Description: A dictionary (or hash map) that supports arbirtray keys and values. Currently,
+  keys can be numbers, numeric vectors, strings, string vectors.
 License: GPL (>= 2)
 Imports: methods, Rcpp (>= 0.12.3.2)
 LinkingTo: Rcpp, BH
