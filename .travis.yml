@@ -1,2 +1,5 @@
 language: r
 cache: packages
+
+env:
+  - WARNINGS_ARE_ERRORS=0
