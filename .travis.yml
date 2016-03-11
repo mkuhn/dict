@@ -17,7 +17,7 @@ addons:
     - gcc-4.8
     - g++-4.8
 
-r_packages:
+r_binary_packages:
   - covr
 
 after_success:
