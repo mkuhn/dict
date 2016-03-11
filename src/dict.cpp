@@ -15,10 +15,12 @@ struct container_hash {
 };
 
 typedef std::vector<double> Double_vector;
+typedef std::vector<std::string> String_vector;
 
 typedef std::unordered_map<double, SEXP> Double_map;
+typedef std::unordered_map<std::string, SEXP> String_map;
 typedef std::unordered_map<Double_vector, SEXP, container_hash<Double_vector> > Double_vector_map;
-
+typedef std::unordered_map<String_vector, SEXP, container_hash<String_vector> > String_vector_map;
 
 class Dict {
   private:
@@ -26,7 +28,10 @@ class Dict {
     Double_vector_map double_vector_map;
     Double_map double_map;
 
-  public:
+    String_vector_map string_vector_map;
+    String_map string_map;
+
+public:
 
     SEXP get(SEXP& key) {
 
@@ -38,9 +43,24 @@ class Dict {
             if (it != double_map.end())
               return it->second;
           } else {
-            Double_vector dv(nv.begin(), nv.end());
-            Double_vector_map::const_iterator it = double_vector_map.find(dv);
+            Double_vector v(nv.begin(), nv.end());
+            Double_vector_map::const_iterator it = double_vector_map.find(v);
             if (it != double_vector_map.end())
+              return it->second;
+          }
+          break;
+        }
+
+        case STRSXP: {
+          Rcpp::StringVector sv(key);
+          if (sv.size() == 1) {
+            String_map::const_iterator it = string_map.find(Rcpp::as<std::string>(sv.at(0)));
+            if (it != string_map.end())
+              return it->second;
+          } else {
+            String_vector v(sv.begin(), sv.end());
+            String_vector_map::const_iterator it = string_vector_map.find(v);
+            if (it != string_vector_map.end())
               return it->second;
           }
           break;
@@ -58,12 +78,24 @@ class Dict {
       switch( TYPEOF(key) ) {
 
         case REALSXP: {
-          Rcpp::NumericVector nv(key);
-          if (nv.size() == 1) {
-            double_map[nv.at(0)] = value;
+          Rcpp::NumericVector v(key);
+          if (v.size() == 1) {
+            double_map[v.at(0)] = value;
           } else {
-            Double_vector dv(nv.begin(), nv.end());
+            Double_vector dv(v.begin(), v.end());
             double_vector_map[dv] = value;
+          }
+
+          break;
+        }
+
+        case STRSXP: {
+          Rcpp::StringVector v(key);
+          if (v.size() == 1) {
+            string_map[Rcpp::as<std::string>(v.at(0))] = value;
+          } else {
+            String_vector sv(v.begin(), v.end());
+            string_vector_map[sv] = value;
           }
 
           break;
