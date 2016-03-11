@@ -5,6 +5,7 @@ sudo: false
 compiler:
   - gcc
 before_install:
+  - mkdir ~/.R
   - echo -e "CC=gcc-4.8\nCXX=g++-4.8\n" > ~/.R/Makevars
 addons:
   apt:
