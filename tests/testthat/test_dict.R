@@ -7,6 +7,8 @@ test_that("Numbers as keys", {
   d$set(-0.5, "test")
   expect_equal( d$get(1), 23 )
   expect_equal( d$get(-0.5), "test" )
+  d$set(1:10, ":-)")
+  expect_equal( d$get(1:10), ":-)" )
 })
 
 test_that("Vectors of numbers as keys", {

@@ -43,6 +43,8 @@ class Dict {
     T get(SEXP& key) {
 
       switch( TYPEOF(key) ) {
+        case INTSXP:
+          // fall-through, as R can't decide (1:3 is an integer, c(1,2,3) is numeric)
         case REALSXP: {
           Rcpp::NumericVector nv(key);
           if (nv.size() == 1) {
@@ -84,6 +86,7 @@ class Dict {
 
       switch( TYPEOF(key) ) {
 
+        case INTSXP: // fall-through
         case REALSXP: {
           Rcpp::NumericVector v(key);
           if (v.size() == 1) {
@@ -130,59 +133,60 @@ public:
   void append_number(SEXP& key, double value) {
 
     switch( TYPEOF(key) ) {
-    case REALSXP: {
-      Rcpp::NumericVector nv(key);
-      if (nv.size() == 1) {
-        Double_map<Rcpp::NumericVector>::iterator it = double_map.find(nv.at(0));
-        if (it != double_map.end()) {
-          it->second.push_back(value);
-        } else {
-          Rcpp::NumericVector vv;
-          vv.push_back(value);
-          double_map[nv.at(0)] = vv;
-        }
+      case INTSXP: // fall-through
+      case REALSXP: {
+        Rcpp::NumericVector nv(key);
+        if (nv.size() == 1) {
+          Double_map<Rcpp::NumericVector>::iterator it = double_map.find(nv.at(0));
+          if (it != double_map.end()) {
+            it->second.push_back(value);
+          } else {
+            Rcpp::NumericVector vv;
+            vv.push_back(value);
+            double_map[nv.at(0)] = vv;
+          }
 
-      } else {
-        Double_vector v(nv.begin(), nv.end());
-        Double_vector_map<Rcpp::NumericVector>::iterator it = double_vector_map.find(v);
-        if (it != double_vector_map.end()) {
-          it->second.push_back(value);
         } else {
-          Rcpp::NumericVector vv;
-          vv.push_back(value);
-          double_vector_map[v] = vv;
+          Double_vector v(nv.begin(), nv.end());
+          Double_vector_map<Rcpp::NumericVector>::iterator it = double_vector_map.find(v);
+          if (it != double_vector_map.end()) {
+            it->second.push_back(value);
+          } else {
+            Rcpp::NumericVector vv;
+            vv.push_back(value);
+            double_vector_map[v] = vv;
+          }
         }
+        break;
       }
-      break;
-    }
-    case STRSXP: {
-      Rcpp::StringVector sv(key);
-      if (sv.size() == 1) {
-        String_map<Rcpp::NumericVector>::iterator it = string_map.find(Rcpp::as<std::string>(sv.at(0)));
-        if (it != string_map.end()) {
-          it->second.push_back(value);
-        } else {
-          Rcpp::NumericVector vv;
-          vv.push_back(value);
-          string_map[Rcpp::as<std::string>(sv.at(0))] = vv;
-        }
+      case STRSXP: {
+        Rcpp::StringVector sv(key);
+        if (sv.size() == 1) {
+          String_map<Rcpp::NumericVector>::iterator it = string_map.find(Rcpp::as<std::string>(sv.at(0)));
+          if (it != string_map.end()) {
+            it->second.push_back(value);
+          } else {
+            Rcpp::NumericVector vv;
+            vv.push_back(value);
+            string_map[Rcpp::as<std::string>(sv.at(0))] = vv;
+          }
 
-      } else {
-        String_vector v(sv.begin(), sv.end());
-        String_vector_map<Rcpp::NumericVector>::iterator it = string_vector_map.find(v);
-        if (it != string_vector_map.end()) {
-          it->second.push_back(value);
         } else {
-          Rcpp::NumericVector vv;
-          vv.push_back(value);
-          string_vector_map[v] = vv;
+          String_vector v(sv.begin(), sv.end());
+          String_vector_map<Rcpp::NumericVector>::iterator it = string_vector_map.find(v);
+          if (it != string_vector_map.end()) {
+            it->second.push_back(value);
+          } else {
+            Rcpp::NumericVector vv;
+            vv.push_back(value);
+            string_vector_map[v] = vv;
+          }
         }
+        break;
       }
-      break;
-    }
 
-    default:
-      Rcpp::stop("incompatible SEXP encountered");
+      default:
+        Rcpp::stop("incompatible SEXP encountered");
     }
   }
 
