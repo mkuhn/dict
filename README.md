@@ -24,9 +24,11 @@ library(dict)
 
 d <- dict()
 
+d$set(1, 42)
 d$set(c(2, 3), "Hello!")
 d$set("foo", "bar")
-d$get(c(2, 3) )
+d$get(1)
+d$get(c(2, 3))
 
 ```
 
