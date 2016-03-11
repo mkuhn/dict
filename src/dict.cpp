@@ -34,13 +34,16 @@ class Dict {
         case REALSXP: {
           Rcpp::NumericVector nv(key);
           if (nv.size() == 1) {
-            return double_map[nv.at(0)];
+            Double_map::const_iterator it = double_map.find(nv.at(0));
+            if (it != double_map.end())
+              return it->second;
           } else {
-
             Double_vector dv(nv.begin(), nv.end());
-
-            return double_vector_map[dv];
+            Double_vector_map::const_iterator it = double_vector_map.find(dv);
+            if (it != double_vector_map.end())
+              return it->second;
           }
+          break;
         }
 
         default:
