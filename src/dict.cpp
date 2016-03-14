@@ -357,18 +357,18 @@ RCPP_MODULE(dict_module){
 
     class_< NumVecDict >("NumVecDict")
 
-      .constructor()
+    .constructor()
 
-      .method( "[[", &NumVecDict::get_or_stop )
-      .method( "get_with_default", &NumVecDict::get_with_default )
-      .method( "[[<-", &NumVecDict::set )
-      .method( "set", &NumVecDict::set )
-      .method( "append_number", &NumVecDict::append_number )
-      .method( "keys", &NumVecDict::keys )
-      .method( "values", &NumVecDict::values )
-      .method( "items", &NumVecDict::items )
-      .method( "means", &NumVecDict::means )
+    .method( "[[", &NumVecDict::get_or_stop )
+    .method( "get_with_default", &NumVecDict::get_with_default )
+    .method( "[[<-", &NumVecDict::set )
+    .method( "set", &NumVecDict::set )
+    .method( "append_number", &NumVecDict::append_number )
+    .method( "keys", &NumVecDict::keys )
+    .method( "values", &NumVecDict::values )
+    .method( "items", &NumVecDict::items )
+    .method( "means", &NumVecDict::means )
 
-      ;
+    ;
 
 }
