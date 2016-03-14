@@ -115,4 +115,10 @@ test_that("Directly set vector", {
   expect_equal( d$get(1), c(2,3, 4) )
 })
 
-
+test_that("Unsupported keys", {
+  d <- numvecdict()
+  l <- list(1,2,3)
+  expect_error( d[[l]] )
+  expect_error( d[[l]] <- 1 )
+  expect_error( d$append_number(l, 1) )
+})
