@@ -1,3 +1,7 @@
+# dict 0.4.0
+
+Add functions `means` for NumVecDict.
+
 # dict 0.3.0
 
 Add functions `keys`, `values`, and `items`.
