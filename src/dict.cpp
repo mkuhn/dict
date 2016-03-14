@@ -2,6 +2,7 @@
 // [[Rcpp::depends(BH)]]
 
 #include <Rcpp.h>
+#include <functional>
 #include <unordered_map>
 #include <boost/functional/hash.hpp>
 
@@ -26,6 +27,21 @@ using Double_vector_map = std::unordered_map<Double_vector, T, container_hash<Do
 
 template<class T>
 using String_vector_map = std::unordered_map<String_vector, T, container_hash<String_vector> >;
+
+template<class Key, class Hash = std::hash<Key> >
+using T_NV_map = std::unordered_map<Key, Rcpp::NumericVector, Hash>;
+
+template<class Key, class Hash = std::hash<Key> >
+void append_or_add(T_NV_map<Key, Hash>& nv_map, const Key& key, double value) {
+  auto it = nv_map.find(key);
+  if (it != nv_map.end()) {
+    it->second.push_back(value);
+  } else {
+    Rcpp::NumericVector vv;
+    vv.push_back(value);
+    nv_map[key] = vv;
+  }
+}
 
 
 template<class T>
@@ -238,50 +254,20 @@ public:
       case REALSXP: {
         Rcpp::NumericVector nv(key);
         if (nv.size() == 1) {
-          Double_map<Rcpp::NumericVector>::iterator it = double_map.find(nv.at(0));
-          if (it != double_map.end()) {
-            it->second.push_back(value);
-          } else {
-            Rcpp::NumericVector vv;
-            vv.push_back(value);
-            double_map[nv.at(0)] = vv;
-          }
-
+          append_or_add(double_map, nv.at(0), value);
         } else {
           Double_vector v(nv.begin(), nv.end());
-          Double_vector_map<Rcpp::NumericVector>::iterator it = double_vector_map.find(v);
-          if (it != double_vector_map.end()) {
-            it->second.push_back(value);
-          } else {
-            Rcpp::NumericVector vv;
-            vv.push_back(value);
-            double_vector_map[v] = vv;
-          }
+          append_or_add(double_vector_map, v, value);
         }
         break;
       }
       case STRSXP: {
         Rcpp::StringVector sv(key);
         if (sv.size() == 1) {
-          String_map<Rcpp::NumericVector>::iterator it = string_map.find(Rcpp::as<std::string>(sv.at(0)));
-          if (it != string_map.end()) {
-            it->second.push_back(value);
-          } else {
-            Rcpp::NumericVector vv;
-            vv.push_back(value);
-            string_map[Rcpp::as<std::string>(sv.at(0))] = vv;
-          }
-
+          append_or_add(string_map, Rcpp::as<std::string>(sv.at(0)), value);
         } else {
           String_vector v(sv.begin(), sv.end());
-          String_vector_map<Rcpp::NumericVector>::iterator it = string_vector_map.find(v);
-          if (it != string_vector_map.end()) {
-            it->second.push_back(value);
-          } else {
-            Rcpp::NumericVector vv;
-            vv.push_back(value);
-            string_vector_map[v] = vv;
-          }
+          append_or_add(string_vector_map, v, value);
         }
         break;
       }
