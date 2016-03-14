@@ -1,2 +1,1 @@
-PKG_CPPFLAGS=`Rscript -e "Rcpp:::CxxFlags()"` `Rscript -e "Rcpp:::Cxx0xFlags()"`
-PKG_LIBS = `Rscript -e "Rcpp:::LdFlags()"`
+CXX_STD = CXX11
