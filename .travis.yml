@@ -1,21 +1,11 @@
 language: r
 cache: packages
 warnings_are_errors: false
-sudo: true
+sudo: required
+dist: trusty
+
 compiler:
   - gcc
-
-before_install:
-  - mkdir ~/.R
-  - echo -e "CC=gcc-4.8\nCXX=g++-4.8\n" > ~/.R/Makevars
-
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-4.8
-    - g++-4.8
 
 r_binary_packages:
   - covr
