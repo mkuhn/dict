@@ -34,6 +34,10 @@ d[[1]]
 d[[c(2, 3)]]
 d$get("not here", "default")
 
+d$keys()
+d$values()
+d$items()
+
 # [[ ]] gives an error for unknown keys
 d[["?"]]
 

@@ -1,8 +1,8 @@
 Package: dict
 Type: Package
 Title: Dictionary with arbitrary keys and values
-Version: 0.2
-Date: 2016-03-10
+Version: 0.3.0
+Date: 2016-03-15
 Author: Michael Kuhn
 Maintainer: Michael Kuhn <michael.kuhn@gmail.com>
 Description: A dictionary (or hash map) that supports arbirtray keys and values. Currently,

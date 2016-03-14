@@ -132,6 +132,73 @@ class Dict {
       }
     }
 
+    Rcpp::List keys() {
+
+      std::vector<SEXP> keys;
+      keys.reserve(
+        double_vector_map.size() + double_map.size() +
+        string_vector_map.size() + string_map.size()
+      );
+
+      for (auto kv : double_map)        keys.push_back(Rcpp::wrap(kv.first));
+      for (auto kv : double_vector_map) keys.push_back(Rcpp::wrap(kv.first));
+      for (auto kv : string_map)        keys.push_back(Rcpp::wrap(kv.first));
+      for (auto kv : string_vector_map) keys.push_back(Rcpp::wrap(kv.first));
+
+      return Rcpp::wrap(keys);
+    }
+
+    Rcpp::List values() {
+
+      std::vector<SEXP> values;
+      values.reserve(
+        double_vector_map.size() + double_map.size() +
+          string_vector_map.size() + string_map.size()
+      );
+
+      for (auto kv : double_map)        values.push_back(Rcpp::wrap(kv.second));
+      for (auto kv : double_vector_map) values.push_back(Rcpp::wrap(kv.second));
+      for (auto kv : string_map)        values.push_back(Rcpp::wrap(kv.second));
+      for (auto kv : string_vector_map) values.push_back(Rcpp::wrap(kv.second));
+
+      return Rcpp::wrap(values);
+    }
+
+    Rcpp::List items() {
+
+      std::vector<Rcpp::List> items;
+      items.reserve(
+        double_vector_map.size() + double_map.size() +
+          string_vector_map.size() + string_map.size()
+      );
+
+      for (auto kv : double_map)
+        items.push_back( Rcpp::List::create(
+            Rcpp::Named("key") = Rcpp::wrap(kv.first),
+            Rcpp::Named("value") = Rcpp::wrap(kv.second)
+        ));
+
+      for (auto kv : double_vector_map)
+        items.push_back( Rcpp::List::create(
+            Rcpp::Named("key") = Rcpp::wrap(kv.first),
+            Rcpp::Named("value") = Rcpp::wrap(kv.second)
+        ));
+
+      for (auto kv : string_map)
+        items.push_back( Rcpp::List::create(
+            Rcpp::Named("key") = Rcpp::wrap(kv.first),
+            Rcpp::Named("value") = Rcpp::wrap(kv.second)
+        ));
+
+      for (auto kv : string_vector_map)
+        items.push_back( Rcpp::List::create(
+            Rcpp::Named("key") = Rcpp::wrap(kv.first),
+            Rcpp::Named("value") = Rcpp::wrap(kv.second)
+        ));
+
+      return Rcpp::wrap(items);
+    }
+
 };
 
 class NumVecDict : private Dict<Rcpp::NumericVector> {
@@ -210,6 +277,18 @@ public:
     }
   }
 
+  Rcpp::List keys() {
+    return Dict<Rcpp::NumericVector>::keys();
+  }
+
+  Rcpp::List values() {
+    return Dict<Rcpp::NumericVector>::values();
+  }
+
+  Rcpp::List items() {
+    return Dict<Rcpp::NumericVector>::items();
+  }
+
 };
 
 RCPP_MODULE(dict_module){
@@ -223,6 +302,9 @@ RCPP_MODULE(dict_module){
     .method( "get_with_default", &Dict<SEXP>::get_with_default )
     .method( "[[<-", &Dict<SEXP>::set )
     .method( "set", &Dict<SEXP>::set )
+    .method( "keys", &Dict<SEXP>::keys )
+    .method( "values", &Dict<SEXP>::values )
+    .method( "items", &Dict<SEXP>::items )
 
     ;
 
@@ -235,6 +317,9 @@ RCPP_MODULE(dict_module){
       .method( "[[<-", &NumVecDict::set )
       .method( "set", &NumVecDict::set )
       .method( "append_number", &NumVecDict::append_number )
+      .method( "keys", &NumVecDict::keys )
+      .method( "values", &NumVecDict::values )
+      .method( "items", &NumVecDict::items )
 
       ;
 

@@ -122,3 +122,39 @@ test_that("Unsupported keys", {
   expect_error( d[[l]] <- 1 )
   expect_error( d$append_number(l, 1) )
 })
+
+test_that("Keys/values", {
+  d <- dict()
+  d[[1]] <- 1
+  d[[c(1,2)]] <- "2"
+  d[["A"]] <- c(3, 0)
+  d[[ c("A", "B") ]] <- c("4", "X")
+  # order of returned items is arbitrarily specified in C++ code
+  expect_equal( d$keys(), list(1, c(1,2), "A", c("A", "B")) )
+  expect_equal( d$values(), list(1, "2", c(3, 0), c("4", "X")) )
+
+  expect_equal( d$items(), list(
+    list(key = 1, value = 1),
+    list(key=c(1,2), value="2"),
+    list(key="A", value=c(3, 0)),
+    list(key=c("A", "B"), value=c("4", "X"))
+  ))
+
+  d <- numvecdict()
+  d[[1]] <- 1
+  d[[c(1,2)]] <- 2
+  d[["A"]] <- c(3, 0)
+  d[[ c("A", "B") ]] <- c(4, 5)
+  # order of returned items is arbitrarily specified in C++ code
+  expect_equal( d$keys(), list(1, c(1,2), "A", c("A", "B")) )
+  expect_equal( d$values(), list(1, 2, c(3, 0), c(4, 5)) )
+
+  expect_equal( d$items(), list(
+    list(key = 1, value = 1),
+    list(key=c(1,2), value=2),
+    list(key="A", value=c(3, 0)),
+    list(key=c("A", "B"), value=c(4, 5))
+  ))
+
+})
+
