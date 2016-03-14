@@ -88,6 +88,23 @@ class Dict {
       return default_value;
     }
 
+    inline void set_double(const double& key, T& value) {
+      double_map[key] = value;
+    }
+
+    inline void set_double_vector(const Double_vector& key, T& value) {
+      double_vector_map[key] = value;
+    }
+
+    inline void set_string(const std::string& key, T& value) {
+      string_map[key] = value;
+    }
+
+    inline void set_string_vector(const String_vector& key, T& value) {
+      string_vector_map[key] = value;
+    }
+
+
   public:
 
     T get_with_default(SEXP& key, SEXP& default_value) {
@@ -98,7 +115,7 @@ class Dict {
       return get_item(key, NA, true);
     }
 
-    void set(SEXP& key, T& value) {
+    void set(const SEXP& key, T& value) {
 
       switch( TYPEOF(key) ) {
 
@@ -106,10 +123,10 @@ class Dict {
         case REALSXP: {
           Rcpp::NumericVector v(key);
           if (v.size() == 1) {
-            double_map[v.at(0)] = value;
+            set_double(v.at(0), value);
           } else {
             Double_vector dv(v.begin(), v.end());
-            double_vector_map[dv] = value;
+            set_double_vector(dv, value);
           }
 
           break;
@@ -118,10 +135,11 @@ class Dict {
         case STRSXP: {
           Rcpp::StringVector v(key);
           if (v.size() == 1) {
-            string_map[Rcpp::as<std::string>(v.at(0))] = value;
+            std::string s = Rcpp::as<std::string>(v.at(0));
+            set_string(s, value);
           } else {
             String_vector sv(v.begin(), v.end());
-            string_vector_map[sv] = value;
+            set_string_vector(sv, value);
           }
 
           break;
@@ -132,13 +150,15 @@ class Dict {
       }
     }
 
+    size_t length() {
+      return double_vector_map.size() + double_map.size() +
+             string_vector_map.size() + string_map.size();
+    }
+
     Rcpp::List keys() {
 
       std::vector<SEXP> keys;
-      keys.reserve(
-        double_vector_map.size() + double_map.size() +
-        string_vector_map.size() + string_map.size()
-      );
+      keys.reserve(length());
 
       for (auto kv : double_map)        keys.push_back(Rcpp::wrap(kv.first));
       for (auto kv : double_vector_map) keys.push_back(Rcpp::wrap(kv.first));
@@ -151,10 +171,7 @@ class Dict {
     Rcpp::List values() {
 
       std::vector<SEXP> values;
-      values.reserve(
-        double_vector_map.size() + double_map.size() +
-          string_vector_map.size() + string_map.size()
-      );
+      values.reserve(length());
 
       for (auto kv : double_map)        values.push_back(Rcpp::wrap(kv.second));
       for (auto kv : double_vector_map) values.push_back(Rcpp::wrap(kv.second));
@@ -167,10 +184,7 @@ class Dict {
     Rcpp::List items() {
 
       std::vector<Rcpp::List> items;
-      items.reserve(
-        double_vector_map.size() + double_map.size() +
-          string_vector_map.size() + string_map.size()
-      );
+      items.reserve(length());
 
       for (auto kv : double_map)
         items.push_back( Rcpp::List::create(
@@ -289,7 +303,40 @@ public:
     return Dict<Rcpp::NumericVector>::items();
   }
 
+  NumVecDict means() {
+    NumVecDict result;
+
+    for (auto kv : double_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(Rcpp::mean(kv.second));
+      result.set_double(kv.first, mv);
+    }
+
+    for (auto kv : double_vector_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(Rcpp::mean(kv.second));
+      result.set_double_vector(kv.first, mv);
+    }
+
+    for (auto kv : string_map)        {
+      Rcpp::NumericVector mv;
+      mv.push_back(Rcpp::mean(kv.second));
+      result.set_string(kv.first, mv);
+    }
+
+    for (auto kv : string_vector_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(Rcpp::mean(kv.second));
+      result.set_string_vector(kv.first, mv);
+    }
+
+    return result;
+  }
+
 };
+
+RCPP_EXPOSED_CLASS(NumVecDict)
+
 
 RCPP_MODULE(dict_module){
     using namespace Rcpp ;
@@ -320,6 +367,7 @@ RCPP_MODULE(dict_module){
       .method( "keys", &NumVecDict::keys )
       .method( "values", &NumVecDict::values )
       .method( "items", &NumVecDict::items )
+      .method( "means", &NumVecDict::means )
 
       ;
 

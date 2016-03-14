@@ -156,5 +156,15 @@ test_that("Keys/values", {
     list(key=c("A", "B"), value=c(4, 5))
   ))
 
+  dm <- d$means()
+
+  expect_equal( dm$items(), list(
+    list(key = 1, value = 1),
+    list(key=c(1,2), value=2),
+    list(key="A", value=c(1.5)),
+    list(key=c("A", "B"), value=c(4.5))
+  ))
+
+
 })
 
