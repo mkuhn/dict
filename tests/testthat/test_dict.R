@@ -115,6 +115,22 @@ test_that("Directly set vector", {
   expect_equal( d$get(1), c(2,3, 4) )
 })
 
+test_that("Append other numvecdict", {
+  a <- numvecdict()
+  a[[1]] <- c(1,2)
+  b <- numvecdict()
+  b[[1]] <- c(3,4)
+  b[["A"]] <- c(1,2)
+  a$append_items(b)
+
+  # can modify b without affecting merged a
+  b$append_number(1, 23)
+  b$append_number("A", 5)
+
+  expect_equal( a[[1]], c(1,2,3,4) )
+  expect_equal( a[["A"]], c(1,2) )
+})
+
 test_that("Unsupported keys", {
   d <- numvecdict()
   l <- list(1,2,3)
@@ -164,7 +180,5 @@ test_that("Keys/values", {
     list(key="A", value=c(1.5)),
     list(key=c("A", "B"), value=c(4.5))
   ))
-
-
 })
 

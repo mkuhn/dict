@@ -1,6 +1,10 @@
+# dict 0.5.0
+
+Add function `append_items` for NumVecDict.
+
 # dict 0.4.0
 
-Add functions `means` for NumVecDict.
+Add function `means` for NumVecDict.
 
 # dict 0.3.0
 

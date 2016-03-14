@@ -43,6 +43,17 @@ void append_or_add(T_NV_map<Key, Hash>& nv_map, const Key& key, double value) {
   }
 }
 
+template<class Key, class Hash = std::hash<Key> >
+void append_or_add(T_NV_map<Key, Hash>& nv_map, const Key& key, Rcpp::NumericVector values) {
+  auto it = nv_map.find(key);
+  if (it != nv_map.end()) {
+    for (double d : values)
+      it->second.push_back(d);
+  } else {
+    nv_map[key] = values;
+  }
+}
+
 
 template<class T>
 class Dict {
@@ -289,6 +300,25 @@ public:
     return Dict<Rcpp::NumericVector>::items();
   }
 
+  void append_items(NumVecDict source) {
+
+    for (auto kv : source.double_map) {
+      append_or_add(double_map, kv.first, kv.second);
+    }
+
+    for (auto kv : source.double_vector_map) {
+      append_or_add(double_vector_map, kv.first, kv.second);
+    }
+
+    for (auto kv : source.string_map)        {
+      append_or_add(string_map, kv.first, kv.second);
+    }
+
+    for (auto kv : source.string_vector_map) {
+      append_or_add(string_vector_map, kv.first, kv.second);
+    }
+  }
+
   NumVecDict means() {
     NumVecDict result;
 
@@ -350,6 +380,7 @@ RCPP_MODULE(dict_module){
     .method( "[[<-", &NumVecDict::set )
     .method( "set", &NumVecDict::set )
     .method( "append_number", &NumVecDict::append_number )
+    .method( "append_items", &NumVecDict::append_items )
     .method( "keys", &NumVecDict::keys )
     .method( "values", &NumVecDict::values )
     .method( "items", &NumVecDict::items )
