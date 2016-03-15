@@ -182,6 +182,7 @@ class Dict {
              string_vector_map.size() + string_map.size();
     }
 
+    // get a list of all keys
     Rcpp::List keys() {
 
       std::vector<SEXP> keys;
@@ -195,6 +196,7 @@ class Dict {
       return Rcpp::wrap(keys);
     }
 
+    // get a list of all values
     Rcpp::List values() {
 
       std::vector<SEXP> values;
@@ -208,6 +210,7 @@ class Dict {
       return Rcpp::wrap(values);
     }
 
+    // get a list of all items [ (key = ..., value = ...), (key = ..., value = ...), ... ]
     Rcpp::List items() {
 
       std::vector<Rcpp::List> items;
@@ -246,6 +249,7 @@ class NumVecDict : private Dict<Rcpp::NumericVector> {
 
 public:
 
+  // calls to base class seem to be necessary for RCPP_MODULE
   Rcpp::NumericVector get_with_default(SEXP& key, SEXP& default_value) {
     return Dict<Rcpp::NumericVector>::get_with_default(key, default_value);
   }
@@ -258,6 +262,20 @@ public:
     Dict<Rcpp::NumericVector>::set(key, value);
   }
 
+  Rcpp::List keys() {
+    return Dict<Rcpp::NumericVector>::keys();
+  }
+
+  Rcpp::List values() {
+    return Dict<Rcpp::NumericVector>::values();
+  }
+
+  Rcpp::List items() {
+    return Dict<Rcpp::NumericVector>::items();
+  }
+
+  // append a single number to the specified item;
+  // creates new entry if necessary
   void append_number(SEXP& key, double value) {
 
     switch( TYPEOF(key) ) {
@@ -288,37 +306,23 @@ public:
     }
   }
 
-  Rcpp::List keys() {
-    return Dict<Rcpp::NumericVector>::keys();
-  }
-
-  Rcpp::List values() {
-    return Dict<Rcpp::NumericVector>::values();
-  }
-
-  Rcpp::List items() {
-    return Dict<Rcpp::NumericVector>::items();
-  }
-
+  // merge the given numvecdict into the current one
   void append_items(NumVecDict source) {
 
-    for (auto kv : source.double_map) {
+    for (auto kv : source.double_map)
       append_or_add(double_map, kv.first, kv.second);
-    }
 
-    for (auto kv : source.double_vector_map) {
+    for (auto kv : source.double_vector_map)
       append_or_add(double_vector_map, kv.first, kv.second);
-    }
 
-    for (auto kv : source.string_map)        {
+    for (auto kv : source.string_map)
       append_or_add(string_map, kv.first, kv.second);
-    }
 
-    for (auto kv : source.string_vector_map) {
+    for (auto kv : source.string_vector_map)
       append_or_add(string_vector_map, kv.first, kv.second);
-    }
   }
 
+  // return a new numvecdict: (key, mean(values)) for each key
   NumVecDict means() {
     NumVecDict result;
 

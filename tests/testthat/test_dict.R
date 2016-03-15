@@ -118,9 +118,13 @@ test_that("Directly set vector", {
 test_that("Append other numvecdict", {
   a <- numvecdict()
   a[[1]] <- c(1,2)
+
   b <- numvecdict()
   b[[1]] <- c(3,4)
   b[["A"]] <- c(1,2)
+  b[[c("A", "B")]] <- 1
+  b[[c(1,2)]] <- 1
+
   a$append_items(b)
 
   # can modify b without affecting merged a
