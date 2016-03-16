@@ -11,15 +11,6 @@ dict <- function() {
 
     thisEnv = thisEnv,
 
-    # .method( "[[", &Dict<int>::get_or_stop )
-    # .method( "get_with_default", &Dict<int>::get_with_default )
-    # .method( "[[<-", &Dict<int>::set )
-    # .method( "set", &Dict<int>::set )
-    # .method( "keys", &Dict<int>::keys )
-    # .method( "values", &Dict<int>::values )
-    # .method( "items", &Dict<int>::items )
-    # .method( "length", &Dict<int>::length )
-
     set = function(key, value) {
       if (is.null(value)) stop("Cannot store NULL in dict!")
       idx <- thisEnv$idx_dict$get_or_set_idx(key)
