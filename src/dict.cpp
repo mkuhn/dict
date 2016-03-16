@@ -274,6 +274,10 @@ public:
     return Dict<Rcpp::NumericVector>::items();
   }
 
+  size_t length() {
+    return Dict<Rcpp::NumericVector>::length();
+  }
+
   // append a single number to the specified item;
   // creates new entry if necessary
   void append_number(SEXP& key, double value) {
@@ -372,6 +376,7 @@ RCPP_MODULE(dict_module){
     .method( "keys", &Dict<SEXP>::keys )
     .method( "values", &Dict<SEXP>::values )
     .method( "items", &Dict<SEXP>::items )
+    .method( "length", &Dict<SEXP>::length )
 
     ;
 
@@ -388,6 +393,7 @@ RCPP_MODULE(dict_module){
     .method( "keys", &NumVecDict::keys )
     .method( "values", &NumVecDict::values )
     .method( "items", &NumVecDict::items )
+    .method( "length", &NumVecDict::length )
     .method( "means", &NumVecDict::means )
 
     ;

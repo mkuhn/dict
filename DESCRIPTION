@@ -10,4 +10,7 @@ Description: A dictionary (or hash map) that supports arbirtray keys and values.
 License: GPL (>= 2)
 Imports: methods, Rcpp (>= 0.12.3)
 LinkingTo: Rcpp, BH
-Suggests: testthat
+Suggests: testthat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

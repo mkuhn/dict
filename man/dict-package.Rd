@@ -1,6 +1,5 @@
 \name{dict-package}
 \alias{dict-package}
-\alias{dict}
 \docType{package}
 \title{
 \packageTitle{dict}

@@ -1,0 +1,70 @@
+---
+title: "Introduction"
+author: "Michael Kuhn"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+## Introduction to dict
+
+## dict
+
+To get a new, empty dictionary, call the `dict` function:
+
+```{r}
+library(dict)
+d <- dict()
+```
+
+You can then assign items using numbers and strings (and vectors of these) as keys:
+
+```{r}
+d[[1]] <- "First entry!"
+d[[c(2,3)]] <- 5
+d[["a string"]] <- list(A = 1, B = 2)
+d[[c("A", "B")]] <- function(x) 1+x
+d[["a string"]]
+```
+
+...and then retrieve them again:
+
+```{r}
+d[[c(2,3)]]
+f <- d[[c("A", "B")]]
+f(41)
+```
+
+Accessing a non-existing key leads to an error:
+
+```{r, error=TRUE}
+d[["?"]]
+```
+
+However, you can use `d$get` to return `NA` or another default value:
+
+```{r}
+d$get("?")
+d$get("?", "default")
+```
+
+(NB: The second argument will be evaluated in any case, even if the key is found. This is different
+from the standard R behavior, namely lazy evaluation.)
+
+You can access the `keys`, `values`, `items`, and `length`:
+
+```{r}
+d$keys()
+d$values()
+d$items()
+d$length()
+```
+
+```{r}
+d[["a string"]]
+```
+
+
