@@ -2,7 +2,8 @@ context("Dict test")
 
 test_that("Numbers as keys", {
   d <- dict()
-  expect_equal( d$get(1), NA )
+  expect_true( is.null(d$get(1)) )
+  expect_true( is.na(d$get(1, NA)) )
   d$set(1, 23)
   d$set(-0.5, "test")
   expect_equal( d$get(1), 23 )
@@ -11,9 +12,25 @@ test_that("Numbers as keys", {
   expect_equal( d$get(1:10), ":-)" )
 })
 
+test_that("Length", {
+  d <- dict()
+  d[[1]] <- 1
+  d[[2]] <- "A"
+  d[[c("A", "B")]] <- list()
+  expect_equal( d$length(), 3 )
+
+  d <- numvecdict()
+  d[[1]] <- 1
+  d[[2]] <- 2
+  d$append_number(1, 23)
+  d$append_number("A", 42)
+  expect_equal( d$length(), 3 )
+
+})
+
 test_that("Vectors of numbers as keys", {
   d <- dict()
-  expect_equal( d$get(c(1,2)), NA )
+  expect_true( is.null(d$get(c(1,2))) )
   d$set(1, 23)
   d$set(c(-0.5, 0.5), "test")
   expect_equal( d$get(1), 23 )
@@ -22,7 +39,7 @@ test_that("Vectors of numbers as keys", {
 
 test_that("Strings as keys", {
   d <- dict()
-  expect_equal( d$get("1"), NA )
+  expect_true( is.null(d$get("1")) )
   d$set("1", 23)
   d$set("A", "test")
   expect_equal( d$get("1"), 23 )
@@ -31,7 +48,7 @@ test_that("Strings as keys", {
 
 test_that("Vectors of strings as keys", {
   d <- dict()
-  expect_equal( d$get(c("1","2")), NA )
+  expect_true( is.null(d$get(c("1","2"))) )
   d$set("1", 23)
   d$set(c("A", "B"), "test")
   expect_equal( d$get("1"), 23 )
@@ -56,9 +73,12 @@ test_that("[[ ]] syntax", {
   expect_equal( d[[1]], 23 )
   expect_equal( d[["1"]], 42 )
   expect_equal( d[[c("A", "B")]], "test" )
-  expect_equal( d$get("not here"), NA )
+  expect_true( is.null(d$get("not here")) )
   expect_equal( d$get("not here", "default"), "default" )
   expect_error( d[["not here"]] )
+
+  d <- numvecdict()
+  expect_true( length(d[[1]]) == 0 )
 })
 
 test_that("Append numbers: numbers as keys", {
@@ -145,10 +165,10 @@ test_that("Unsupported keys", {
 
 test_that("Keys/values", {
   d <- dict()
-  d[[1]] <- 1
-  d[[c(1,2)]] <- "2"
-  d[["A"]] <- c(3, 0)
-  d[[ c("A", "B") ]] <- c("4", "X")
+  d$set(1, 1)
+  d$set(c(1,2), "2")
+  d$set("A", c(3, 0))
+  d$set(c("A", "B"), c("4", "X"))
   # order of returned items is arbitrarily specified in C++ code
   expect_equal( d$keys(), list(1, c(1,2), "A", c("A", "B")) )
   expect_equal( d$values(), list(1, "2", c(3, 0), c("4", "X")) )

@@ -13,7 +13,7 @@ numvecdict()
 }
 
 \value{
-A dictionary object that can be used to assign and extra values using either the \code{[[ ]]} operator
+A dictionary object that can be used to assign and add values using either \code{[[} operator
 or member functions accessed via \code{$}.
 }
 

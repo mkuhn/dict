@@ -30,7 +30,7 @@ d[[ c(2,3) ]] <- "Test"
 # retrieve the element
 d[[ c(2,3) ]]
 
-# get will return NA if the key is not in the dictionary
+# get will return NULL if the key is not in the dictionary
 # (but you can also set the second argument to specify the default value)
 d$get("?")
 }

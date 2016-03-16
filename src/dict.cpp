@@ -67,7 +67,7 @@ class Dict {
 
     const SEXP NA = Rcpp::wrap(NA_LOGICAL);
 
-    T get_item(SEXP& key, const SEXP& default_value, bool stop_if_missing) {
+    T get_item(SEXP& key, const T& default_value, bool store_default) {
 
       switch( TYPEOF(key) ) {
         case INTSXP:
@@ -78,11 +78,23 @@ class Dict {
             typename Double_map<T>::const_iterator it = double_map.find(nv.at(0));
             if (it != double_map.end())
               return it->second;
+
+            if (store_default) {
+              set_double(nv.at(0), default_value);
+              return(default_value);
+            }
+
           } else {
             Double_vector v(nv.begin(), nv.end());
             typename Double_vector_map<T>::const_iterator it = double_vector_map.find(v);
             if (it != double_vector_map.end())
               return it->second;
+
+            if (store_default) {
+              set_double_vector(v, default_value);
+              return(default_value);
+            }
+
           }
           break;
         }
@@ -90,14 +102,27 @@ class Dict {
         case STRSXP: {
           Rcpp::StringVector sv(key);
           if (sv.size() == 1) {
-            typename String_map<T>::const_iterator it = string_map.find(Rcpp::as<std::string>(sv.at(0)));
+            std::string s = Rcpp::as<std::string>(sv.at(0));
+            typename String_map<T>::const_iterator it = string_map.find(s);
             if (it != string_map.end())
               return it->second;
+
+            if (store_default) {
+              set_string(s, default_value);
+              return(default_value);
+            }
+
           } else {
             String_vector v(sv.begin(), sv.end());
             typename String_vector_map<T> ::const_iterator it = string_vector_map.find(v);
             if (it != string_vector_map.end())
               return it->second;
+
+            if (store_default) {
+              set_string_vector(v, default_value);
+              return(default_value);
+            }
+
           }
           break;
         }
@@ -106,40 +131,34 @@ class Dict {
           Rcpp::stop("incompatible SEXP encountered");
       }
 
-      if (stop_if_missing) {
-        Rcpp::Rcout << "Key not found: ";
-        Rcpp::print(key);
-        Rcpp::stop("Key error!");
-      }
-
       return default_value;
     }
 
-    inline void set_double(const double& key, T& value) {
+    inline void set_double(const double& key, const T& value) {
       double_map[key] = value;
     }
 
-    inline void set_double_vector(const Double_vector& key, T& value) {
+    inline void set_double_vector(const Double_vector& key, const T& value) {
       double_vector_map[key] = value;
     }
 
-    inline void set_string(const std::string& key, T& value) {
+    inline void set_string(const std::string& key, const T& value) {
       string_map[key] = value;
     }
 
-    inline void set_string_vector(const String_vector& key, T& value) {
+    inline void set_string_vector(const String_vector& key, const T& value) {
       string_vector_map[key] = value;
     }
 
 
   public:
 
-    T get_with_default(SEXP& key, SEXP& default_value) {
+    T get_with_default(SEXP& key, const T& default_value) {
       return get_item(key, default_value, false);
     }
 
-    T get_or_stop(SEXP& key) {
-      return get_item(key, NA, true);
+    T get_with_default_or_store(SEXP& key, const T& default_value) {
+      return get_item(key, default_value, true);
     }
 
     void set(const SEXP& key, T& value) {
@@ -245,7 +264,36 @@ class Dict {
 
 };
 
+
+
+class IdxDict : private Dict<int> {
+
+public:
+
+  int get_or_set_idx(SEXP& key) {
+    return Dict<int>::get_with_default_or_store(key, length()+1);
+  }
+
+  int get_or_zero(SEXP& key) {
+    return Dict<int>::get_with_default(key, 0);
+  }
+
+  Rcpp::List keys() {
+    return Dict<int>::keys();
+  }
+
+  Rcpp::List items() {
+    return Dict<int>::items();
+  }
+
+};
+
+
+
+
 class NumVecDict : private Dict<Rcpp::NumericVector> {
+
+  Rcpp::NumericVector empty_vector;
 
 public:
 
@@ -254,12 +302,13 @@ public:
     return Dict<Rcpp::NumericVector>::get_with_default(key, default_value);
   }
 
-  Rcpp::NumericVector get_or_stop(SEXP& key) {
-    return Dict<Rcpp::NumericVector>::get_or_stop(key);
+  Rcpp::NumericVector get_or_empty_vector(SEXP& key) {
+    return Dict<Rcpp::NumericVector>::get_with_default(key, empty_vector);
   }
 
   void set(SEXP& key, Rcpp::NumericVector& value) {
-    Dict<Rcpp::NumericVector>::set(key, value);
+    Rcpp::NumericVector my_value = Rcpp::clone<Rcpp::NumericVector>(value);
+    Dict<Rcpp::NumericVector>::set(key, my_value);
   }
 
   Rcpp::List keys() {
@@ -365,18 +414,14 @@ RCPP_EXPOSED_CLASS(NumVecDict)
 RCPP_MODULE(dict_module){
     using namespace Rcpp ;
 
-    class_< Dict<SEXP> >("Dict")
+    class_< IdxDict >("IdxDict")
 
     .constructor()
 
-    .method( "[[", &Dict<SEXP>::get_or_stop )
-    .method( "get_with_default", &Dict<SEXP>::get_with_default )
-    .method( "[[<-", &Dict<SEXP>::set )
-    .method( "set", &Dict<SEXP>::set )
-    .method( "keys", &Dict<SEXP>::keys )
-    .method( "values", &Dict<SEXP>::values )
-    .method( "items", &Dict<SEXP>::items )
-    .method( "length", &Dict<SEXP>::length )
+    .method( "get_or_set_idx", &IdxDict::get_or_set_idx )
+    .method( "get_or_zero", &IdxDict::get_or_zero )
+    .method( "keys", &IdxDict::keys )
+    .method( "items", &IdxDict::items )
 
     ;
 
@@ -384,7 +429,7 @@ RCPP_MODULE(dict_module){
 
     .constructor()
 
-    .method( "[[", &NumVecDict::get_or_stop )
+    .method( "[[", &NumVecDict::get_or_empty_vector )
     .method( "get_with_default", &NumVecDict::get_with_default )
     .method( "[[<-", &NumVecDict::set )
     .method( "set", &NumVecDict::set )

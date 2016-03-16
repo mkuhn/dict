@@ -1,3 +1,13 @@
+# dict 0.6.0 "Don't run with scissors"
+
+While starting a vignette, it became apparent that storing pointers
+in the C++ class works during testing, but not when creating the vignette
+via knitr. As this hints towards some deeper problem, R objects are now
+stored in a list on the R side, and the C++ side only retains a map of indexes
+in the list.
+
+Add function `length`.
+
 # dict 0.5.0
 
 Add function `append_items` for NumVecDict.

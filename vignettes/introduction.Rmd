@@ -27,7 +27,6 @@ d[[1]] <- "First entry!"
 d[[c(2,3)]] <- 5
 d[["a string"]] <- list(A = 1, B = 2)
 d[[c("A", "B")]] <- function(x) 1+x
-d[["a string"]]
 ```
 
 ...and then retrieve them again:
@@ -51,9 +50,6 @@ d$get("?")
 d$get("?", "default")
 ```
 
-(NB: The second argument will be evaluated in any case, even if the key is found. This is different
-from the standard R behavior, namely lazy evaluation.)
-
 You can access the `keys`, `values`, `items`, and `length`:
 
 ```{r}
@@ -63,8 +59,35 @@ d$items()
 d$length()
 ```
 
+## numvecdict
+
+To get a new, empty dictionary, call the `numvecdict` function:
+
 ```{r}
-d[["a string"]]
+d <- numvecdict()
 ```
 
+This dictionary only contains vectors of numbers, which you can assign:
 
+```{r}
+d[[1]] <- 1
+d[[2]] <- c(2,3)
+d[["a string"]] <- 1:10
+```
+
+You can append numbers to the lists. If you specify a new key, the entry will be generated automatically:
+
+```{r}
+d$append_number(1, 2)
+d$append_number(2, 3)
+d$append_number("answers", 42)
+```
+
+Then, you can retrieve the vectors you stored:
+
+```{r}
+d$get(1)
+d[[2]]
+d[["answers"]]
+d[["completely new and never seen key"]]
+```
