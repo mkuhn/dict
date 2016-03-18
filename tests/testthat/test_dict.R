@@ -83,7 +83,7 @@ test_that("[[ ]] syntax", {
 
 test_that("Append numbers: numbers as keys", {
   d <- numvecdict()
-  expect_equal( d$get(1), as.numeric(NA) )
+  expect_equal( d$get(1), numeric() )
   d$append_number(1, 2)
   expect_equal( d$get(1), c(2) )
   d$append_number(1, 3)
@@ -93,7 +93,7 @@ test_that("Append numbers: numbers as keys", {
 
 test_that("Append numbers: numeric vectors as keys", {
   d <- numvecdict()
-  expect_equal( d$get(c(1,2)), as.numeric(NA) )
+  expect_equal( d$get(c(1,2)), numeric() )
   d$append_number(c(1,2), 2)
   expect_equal( d$get(c(1,2)), c(2) )
   d$append_number(c(1,2), 3)
@@ -104,7 +104,7 @@ test_that("Append numbers: numeric vectors as keys", {
 
 test_that("Append numbers: strings as keys", {
   d <- numvecdict()
-  expect_equal( d$get("A"), as.numeric(NA) )
+  expect_equal( d$get("A"), numeric() )
   d$append_number("A", 2)
   expect_equal( d$get("A"), c(2) )
   d$append_number("A", 3)
@@ -114,7 +114,7 @@ test_that("Append numbers: strings as keys", {
 
 test_that("Append numbers: string vectors as keys", {
   d <- numvecdict()
-  expect_equal( d$get(c("A", "B")), as.numeric(NA) )
+  expect_equal( d$get(c("A", "B")), numeric() )
   d$append_number(c("A", "B"), 2)
   expect_equal( d$get(c("A", "B")), c(2) )
   d$append_number(c("A", "B"), 3)
