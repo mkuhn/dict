@@ -62,7 +62,7 @@ dict <- function() {
 numvecdict <- function() {
   d <- new(NumVecDict)
   assign('get',
-         function(key, default_value=NA) d$get_with_default(key, default_value),
+         function(key, default_value=numeric()) d$get_with_default(key, default_value),
          envir = d
   )
   d

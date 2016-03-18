@@ -406,6 +406,33 @@ public:
     return result;
   }
 
+  // replace values by their mean in this dict
+  void inplace_means() {
+    for (auto kv : double_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(Rcpp::mean(kv.second));
+      set_double(kv.first, mv);
+    }
+
+    for (auto kv : double_vector_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(Rcpp::mean(kv.second));
+      set_double_vector(kv.first, mv);
+    }
+
+    for (auto kv : string_map)        {
+      Rcpp::NumericVector mv;
+      mv.push_back(Rcpp::mean(kv.second));
+      set_string(kv.first, mv);
+    }
+
+    for (auto kv : string_vector_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(Rcpp::mean(kv.second));
+      set_string_vector(kv.first, mv);
+    }
+  }
+
 };
 
 RCPP_EXPOSED_CLASS(NumVecDict)
@@ -440,6 +467,7 @@ RCPP_MODULE(dict_module){
     .method( "items", &NumVecDict::items )
     .method( "length", &NumVecDict::length )
     .method( "means", &NumVecDict::means )
+    .method( "inplace_means", &NumVecDict::inplace_means )
 
     ;
 

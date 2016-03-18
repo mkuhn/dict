@@ -206,3 +206,18 @@ test_that("Keys/values", {
   ))
 })
 
+test_that("Means in place", {
+  d <- numvecdict()
+  d[[1]] <- 1:3
+  d[["1"]] <- 2:4
+  d[["2"]] <- 1:10
+  d[[c(1,2)]] <- 3:5
+  d[[c("1","2")]] <- 4:6
+  d$inplace_means()
+
+  expect_equal(d[[1]], 2)
+  expect_equal(d[["1"]], 3)
+  expect_equal(d[["2"]], 5.5)
+  expect_equal(d[[c(1,2)]], 4)
+  expect_equal(d[[c("1","2")]], 5)
+})

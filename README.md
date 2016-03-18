@@ -2,10 +2,12 @@
 [![Build Status](https://travis-ci.org/mkuhn/dict.svg?branch=master)](https://travis-ci.org/mkuhn/dict)
 [![codecov.io](https://codecov.io/github/mkuhn/dict/coverage.svg?branch=master)](https://codecov.io/github/mkuhn/dict?branch=master)
 
-`dict` provides dictionaries with arbitrary keys and values for R. Under the hood, it creates a separate C++ unordered_map for the following type:
+`dict` provides dictionaries with arbitrary keys and values for R. Under the hood, it creates a separate C++ unordered_map for the following types:
 
 - `numeric` (both single values and vectors)
 - `character` (both single values and vectors)
+
+Please refer to the [introduction for an overview of the functions](vignettes/introduction.Rmd), or see below for a short usage example.
 
 ### Installation
 
@@ -42,7 +44,6 @@ d$items()
 d[["?"]]
 
 ```
-
 
 Usage of `numvecdict`:
 

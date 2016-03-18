@@ -4,14 +4,46 @@ author: "Michael Kuhn"
 date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Introduction}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-## Introduction to dict
+## Introduction to the dict package
 
-## dict
+The `dict` package exports two functions: `dict()` and `numvecdict()`. The former creates a Python-style dictionary (or hash table) that can take any R object as value, and numbers and strings (and the respective vectors) as keys. The latter behaves like a Python `defaultdict(list)`, but takes only numeric vectors as values.
+
+### Overview of member functions: `dict`
+
+| function                 | description                             |
+|--------------------------|-----------------------------------------|
+| `d[[key]] <- value`      | assignment   |
+| `d[[key]]`               | retrieval, error if key not present  |
+| `d$get(key)`             | retrieval, return `NULL` if not present  |
+| `d$get(key, "default")`  | retrieval, return second parameter if not present  |
+| `d$keys()`               | list of keys |
+| `d$values()`             | list of values |
+| `d$items()`              | list of items (as a list of lists) |
+| `d$length()`             | number of items |
+
+### Overview of member functions: `numvdict`
+
+| function                 | description                             |
+|--------------------------|-----------------------------------------|
+| `d[[key]] <- value`      | assignment (must be number or numeric vector)   |
+| `d[[key]]`               | retrieval, return empty vector if not present  |
+| `d$get(key)`             | retrieval, return empty vector if not present  |
+| `d$get(key, NA)`         | retrieval, return second parameter if not present  |
+| `d$append_number(key, x)`| append a number to an entry (creates a new entry if necessary) |
+| `d$append_items(d2)`     | append items from another dictionary |
+| `d$means()`              | return new dictionary with means for each value |
+| `d$inplace_means()`      | convert values to means for this dictionary |
+| `d$keys()`               | list of keys |
+| `d$values()`             | list of values |
+| `d$items()`              | list of items (as a list of lists) |
+| `d$length()`             | number of items |
+
+## Usage examples: `dict`
 
 To get a new, empty dictionary, call the `dict` function:
 
@@ -59,7 +91,7 @@ d$items()
 d$length()
 ```
 
-## numvecdict
+## Usage examples: `numvecdict`
 
 To get a new, empty dictionary, call the `numvecdict` function:
 
@@ -91,3 +123,35 @@ d[[2]]
 d[["answers"]]
 d[["completely new and never seen key"]]
 ```
+
+It is possible to add the values of one `numvecdict` to the other:
+
+```{r}
+a <- numvecdict()
+b <- numvecdict()
+
+a[[1]] <- 1
+b[[1]] <- 2
+b[[2]] <- 3
+
+a$append_items(b)
+
+a$items()
+```
+
+
+You can extract the means into a new dictionary:
+
+```{r}
+mean_d <- d$means()
+mean_d$items()
+```
+
+It is also possible to replace each value with its mean:
+
+```{r}
+d$inplace_means()
+d$items()
+```
+
+
