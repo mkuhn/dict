@@ -2,7 +2,9 @@
 [![Build Status](https://travis-ci.org/mkuhn/dict.svg?branch=master)](https://travis-ci.org/mkuhn/dict)
 [![codecov.io](https://codecov.io/github/mkuhn/dict/coverage.svg?branch=master)](https://codecov.io/github/mkuhn/dict?branch=master)
 
-`dict` provides dictionaries with arbitrary keys and values for R. Under the hood, it creates a separate C++ unordered_map for the following types:
+`dict` provides dictionaries with arbitrary keys and values for R. Other solutions in R, such as named lists, the [`hash` package](https://cran.r-project.org/web/packages/hash/index.html), or environments only let you use strings and, partially, numbers as keys. However, it is not possible to use vectors like `c(1,2,3)` or `c("A", "B")` as keys. This package provides efficient implementations of standard [Python-style dictionaries](https://docs.python.org/3/library/stdtypes.html#mapping-types-dict) and a [`defaultdict`](https://docs.python.org/3/library/collections.html#defaultdict-objects) for numeric vectors.
+
+Under the hood, it creates a separate C++ `unordered_map` for the following types:
 
 - `numeric` (both single values and vectors)
 - `character` (both single values and vectors)
