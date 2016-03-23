@@ -8,7 +8,7 @@ Maintainer: Michael Kuhn <michael.kuhn@gmail.com>
 Description: A dictionary (or hash map) that supports arbitrary keys and values. Currently,
   keys can be numbers, numeric vectors, strings, string vectors.
 License: GPL (>= 2)
-Imports: methods, Rcpp (>= 0.12.3)
+Imports: methods, Rcpp (>= 0.12.4)
 LinkingTo: Rcpp, BH
 Suggests: testthat,
     knitr,
