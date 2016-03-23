@@ -175,49 +175,76 @@ test_that("Keys/values", {
 
   expect_equal( d$items(), list(
     list(key = 1, value = 1),
-    list(key=c(1,2), value="2"),
-    list(key="A", value=c(3, 0)),
-    list(key=c("A", "B"), value=c("4", "X"))
+    list(key = c(1,2), value = "2"),
+    list(key = "A", value = c(3, 0)),
+    list(key = c("A", "B"), value = c("4", "X"))
   ))
 
-  d <- numvecdict()
-  d[[1]] <- 1
-  d[[c(1,2)]] <- 2
-  d[["A"]] <- c(3, 0)
-  d[[ c("A", "B") ]] <- c(4, 5)
+  getDict <- function() {
+    d <- numvecdict()
+    d[[1]] <- 1
+    d[[c(1,2)]] <- 2
+    d[["A"]] <- c(3, 0)
+    d[[ c("A", "B") ]] <- c(4, 5, 9)
+    d
+  }
+
+  d <- getDict()
+
   # order of returned items is arbitrarily specified in C++ code
   expect_equal( d$keys(), list(1, c(1,2), "A", c("A", "B")) )
-  expect_equal( d$values(), list(1, 2, c(3, 0), c(4, 5)) )
+  expect_equal( d$values(), list(1, 2, c(3, 0), c(4, 5, 9)) )
 
   expect_equal( d$items(), list(
     list(key = 1, value = 1),
-    list(key=c(1,2), value=2),
-    list(key="A", value=c(3, 0)),
-    list(key=c("A", "B"), value=c(4, 5))
+    list(key = c(1,2), value = 2),
+    list(key = "A", value = c(3, 0)),
+    list(key = c("A", "B"), value = c(4, 5, 9))
   ))
 
-  dm <- d$means()
-
-  expect_equal( dm$items(), list(
+  expect_equal( d$each_mean()$items(), list(
     list(key = 1, value = 1),
-    list(key=c(1,2), value=2),
-    list(key="A", value=c(1.5)),
-    list(key=c("A", "B"), value=c(4.5))
+    list(key = c(1,2), value = 2),
+    list(key = "A", value = 1.5),
+    list(key = c("A", "B"), value = 6)
   ))
+
+  expect_equal( d$each_median()$items(), list(
+    list(key = 1, value = 1),
+    list(key = c(1,2), value = 2),
+    list(key = "A", value = 1.5),
+    list(key = c("A", "B"), value = 5)
+  ))
+
+  expect_equal( d$each_max()$items(), list(
+    list(key = 1, value = 1),
+    list(key = c(1,2), value = 2),
+    list(key = "A", value = 3),
+    list(key = c("A", "B"), value = 9)
+  ))
+
+  expect_equal( d$each_min()$items(), list(
+    list(key = 1, value = 1),
+    list(key = c(1,2), value = 2),
+    list(key = "A", value = 0),
+    list(key = c("A", "B"), value = 4)
+  ))
+
+  d2 <- getDict()
+  d2$inplace_mean()
+  expect_equal( d$each_mean()$items(), d2$items() )
+
+  d2 <- getDict()
+  d2$inplace_median()
+  expect_equal( d$each_median()$items(), d2$items() )
+
+  d2 <- getDict()
+  d2$inplace_min()
+  expect_equal( d$each_min()$items(), d2$items() )
+
+  d2 <- getDict()
+  d2$inplace_max()
+  expect_equal( d$each_max()$items(), d2$items() )
+
 })
 
-test_that("Means in place", {
-  d <- numvecdict()
-  d[[1]] <- 1:3
-  d[["1"]] <- 2:4
-  d[["2"]] <- 1:10
-  d[[c(1,2)]] <- 3:5
-  d[[c("1","2")]] <- 4:6
-  d$inplace_means()
-
-  expect_equal(d[[1]], 2)
-  expect_equal(d[["1"]], 3)
-  expect_equal(d[["2"]], 5.5)
-  expect_equal(d[[c(1,2)]], 4)
-  expect_equal(d[[c("1","2")]], 5)
-})

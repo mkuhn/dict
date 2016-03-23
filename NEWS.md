@@ -1,3 +1,9 @@
+# dict 0.8.0
+
+- New unified functions for NumVecDict: `each_mean`, `each_median`, `each_max`, `each_min` and the same for `inplace_...`
+
+- Note that this changes the names of the functions `means` and `inplace_means`, as the plural form is awkward for max and min.
+
 # dict 0.7.0
 
 - Improve vignette.

@@ -36,8 +36,8 @@ The `dict` package exports two functions: `dict()` and `numvecdict()`. The forme
 | `d$get(key, NA)`         | retrieval, return second parameter if not present  |
 | `d$append_number(key, x)`| append a number to an entry (creates a new entry if necessary) |
 | `d$append_items(d2)`     | append items from another dictionary |
-| `d$means()`              | return new dictionary with means for each value |
-| `d$inplace_means()`      | convert values to means for this dictionary |
+| `d$each_mean()` (also: `median`, `max`, `min`) | return new dictionary with the mean of each value |
+| `d$inplace_mean()` (also: `median`, `max`, `min`) | convert values to their mean for this dictionary |
 | `d$keys()`               | list of keys |
 | `d$values()`             | list of values |
 | `d$items()`              | list of items (as a list of lists) |
@@ -139,18 +139,17 @@ a$append_items(b)
 a$items()
 ```
 
-
-You can extract the means into a new dictionary:
+You can extract the means into a new dictionary. The same works for the median, min, and max.
 
 ```{r}
-mean_d <- d$means()
+mean_d <- d$each_mean()
 mean_d$items()
 ```
 
 It is also possible to replace each value with its mean:
 
 ```{r}
-d$inplace_means()
+d$inplace_mean()
 d$items()
 ```
 

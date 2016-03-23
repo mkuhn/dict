@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <boost/functional/hash.hpp>
 
+// helper definition for hashing vectors
 template <typename Container>
 struct container_hash {
   std::size_t operator()(Container const& c) const {
@@ -13,6 +14,7 @@ struct container_hash {
   }
 };
 
+// definitions of the key types
 typedef std::vector<double> Double_vector;
 typedef std::vector<std::string> String_vector;
 
@@ -31,6 +33,9 @@ using String_vector_map = std::unordered_map<String_vector, T, container_hash<St
 template<class Key, class Hash = std::hash<Key> >
 using T_NV_map = std::unordered_map<Key, Rcpp::NumericVector, Hash>;
 
+// templated function for different kinds of vectors to check if
+// an element exists and either append it to an existing numeric vector
+// or create a new vector
 template<class Key, class Hash = std::hash<Key> >
 void append_or_add(T_NV_map<Key, Hash>& nv_map, const Key& key, double value) {
   auto it = nv_map.find(key);
@@ -43,6 +48,7 @@ void append_or_add(T_NV_map<Key, Hash>& nv_map, const Key& key, double value) {
   }
 }
 
+// second version of the previous function, this time for appending vectors
 template<class Key, class Hash = std::hash<Key> >
 void append_or_add(T_NV_map<Key, Hash>& nv_map, const Key& key, Rcpp::NumericVector values) {
   auto it = nv_map.find(key);
@@ -54,7 +60,30 @@ void append_or_add(T_NV_map<Key, Hash>& nv_map, const Key& key, Rcpp::NumericVec
   }
 }
 
+// helper definition for vector --> double operations
+typedef double(*vector_op)(const Rcpp::NumericVector&);
 
+// wrapper functions with common signature
+// (might not be strictly necessary but allows us to not
+// define the function templates below in terms of Rcpp
+// syntactic sugar)
+inline double Rcpp_mean(const Rcpp::NumericVector& v) {
+  return Rcpp::mean(v);
+}
+
+inline double Rcpp_median(const Rcpp::NumericVector& v) {
+  return Rcpp::median(v);
+}
+
+inline double Rcpp_max(const Rcpp::NumericVector& v) {
+  return Rcpp::max(v);
+}
+
+inline double Rcpp_min(const Rcpp::NumericVector& v) {
+  return Rcpp::min(v);
+}
+
+// templated base class for our dictionary, not exported to R
 template<class T>
 class Dict {
   protected:
@@ -67,6 +96,7 @@ class Dict {
 
     const SEXP NA = Rcpp::wrap(NA_LOGICAL);
 
+    // generic getter function: define behavior by setting flags in wrappers
     T get_item(SEXP& key, const T& default_value, bool store_default) {
 
       switch( TYPEOF(key) ) {
@@ -265,7 +295,10 @@ class Dict {
 };
 
 
-
+// Minimal dict that only stores indexes to objects, which are
+// stored in a list on the R side. Keeping links to R objects (as SEXP)
+// is dangerous as R doesn't keep track of the pointers that would be
+// stored here.
 class IdxDict : private Dict<int> {
 
 public:
@@ -294,6 +327,64 @@ public:
 class NumVecDict : private Dict<Rcpp::NumericVector> {
 
   Rcpp::NumericVector empty_vector;
+
+  template<vector_op op>
+  void inplace_op() {
+    for (auto kv : double_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(op(kv.second));
+      set_double(kv.first, mv);
+    }
+
+    for (auto kv : double_vector_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(op(kv.second));
+      set_double_vector(kv.first, mv);
+    }
+
+    for (auto kv : string_map)        {
+      Rcpp::NumericVector mv;
+      mv.push_back(op(kv.second));
+      set_string(kv.first, mv);
+    }
+
+    for (auto kv : string_vector_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(op(kv.second));
+      set_string_vector(kv.first, mv);
+    }
+  }
+
+  template<vector_op op>
+  NumVecDict get_op() {
+    NumVecDict result;
+
+    for (auto kv : double_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(op(kv.second));
+      result.set_double(kv.first, mv);
+    }
+
+    for (auto kv : double_vector_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(op(kv.second));
+      result.set_double_vector(kv.first, mv);
+    }
+
+    for (auto kv : string_map)        {
+      Rcpp::NumericVector mv;
+      mv.push_back(op(kv.second));
+      result.set_string(kv.first, mv);
+    }
+
+    for (auto kv : string_vector_map) {
+      Rcpp::NumericVector mv;
+      mv.push_back(op(kv.second));
+      result.set_string_vector(kv.first, mv);
+    }
+
+    return result;
+  }
 
 public:
 
@@ -375,63 +466,17 @@ public:
       append_or_add(string_vector_map, kv.first, kv.second);
   }
 
-  // return a new numvecdict: (key, mean(values)) for each key
-  NumVecDict means() {
-    NumVecDict result;
+  // return a new numvecdict: (key, op(values)) for each key
+  NumVecDict each_mean() { return get_op<Rcpp_mean>(); }
+  NumVecDict each_median() { return get_op<Rcpp_median>(); }
+  NumVecDict each_max() { return get_op<Rcpp_max>(); }
+  NumVecDict each_min() { return get_op<Rcpp_min>(); }
 
-    for (auto kv : double_map) {
-      Rcpp::NumericVector mv;
-      mv.push_back(Rcpp::mean(kv.second));
-      result.set_double(kv.first, mv);
-    }
-
-    for (auto kv : double_vector_map) {
-      Rcpp::NumericVector mv;
-      mv.push_back(Rcpp::mean(kv.second));
-      result.set_double_vector(kv.first, mv);
-    }
-
-    for (auto kv : string_map)        {
-      Rcpp::NumericVector mv;
-      mv.push_back(Rcpp::mean(kv.second));
-      result.set_string(kv.first, mv);
-    }
-
-    for (auto kv : string_vector_map) {
-      Rcpp::NumericVector mv;
-      mv.push_back(Rcpp::mean(kv.second));
-      result.set_string_vector(kv.first, mv);
-    }
-
-    return result;
-  }
-
-  // replace values by their mean in this dict
-  void inplace_means() {
-    for (auto kv : double_map) {
-      Rcpp::NumericVector mv;
-      mv.push_back(Rcpp::mean(kv.second));
-      set_double(kv.first, mv);
-    }
-
-    for (auto kv : double_vector_map) {
-      Rcpp::NumericVector mv;
-      mv.push_back(Rcpp::mean(kv.second));
-      set_double_vector(kv.first, mv);
-    }
-
-    for (auto kv : string_map)        {
-      Rcpp::NumericVector mv;
-      mv.push_back(Rcpp::mean(kv.second));
-      set_string(kv.first, mv);
-    }
-
-    for (auto kv : string_vector_map) {
-      Rcpp::NumericVector mv;
-      mv.push_back(Rcpp::mean(kv.second));
-      set_string_vector(kv.first, mv);
-    }
-  }
+  // replace values by the result of the respective function
+  void inplace_mean() { inplace_op<Rcpp_mean>(); }
+  void inplace_median() { inplace_op<Rcpp_median>(); }
+  void inplace_max() { inplace_op<Rcpp_max>(); }
+  void inplace_min() { inplace_op<Rcpp_min>(); }
 
 };
 
@@ -466,9 +511,15 @@ RCPP_MODULE(dict_module){
     .method( "values", &NumVecDict::values )
     .method( "items", &NumVecDict::items )
     .method( "length", &NumVecDict::length )
-    .method( "means", &NumVecDict::means )
-    .method( "inplace_means", &NumVecDict::inplace_means )
 
+    .method( "each_max", &NumVecDict::each_max )
+    .method( "each_mean", &NumVecDict::each_mean )
+    .method( "each_median", &NumVecDict::each_median )
+    .method( "each_min", &NumVecDict::each_min )
+    .method( "inplace_max", &NumVecDict::inplace_max )
+    .method( "inplace_mean", &NumVecDict::inplace_mean )
+    .method( "inplace_median", &NumVecDict::inplace_median )
+    .method( "inplace_min", &NumVecDict::inplace_min )
     ;
 
 }
