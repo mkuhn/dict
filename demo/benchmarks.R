@@ -8,7 +8,9 @@ message(
 )
 
 library(hash)
+library(dict)
 library(rbenchmark)
+library(ggplot2)
 
 # STEP 0. CREATE A SAMPLE SET OF KEYS AND VALUES.
 #   size: the sample size
@@ -18,9 +20,6 @@ library(rbenchmark)
 size   <- 1e4   # The size of the refernece objects.
 keys   <- as.character( sample(1:size) )  # A vector of
 values <- as.character( rnorm( size ) )
-
-lst <- list()
-for( k in keys )
 
   # Which is faster setting by mapply or doing a for-loop
   # Intialize parameters and prepare things.
@@ -83,7 +82,7 @@ cat( "\n\n" )
 # Create a list using mapply, n.b much faster than for-loop
 message( "BENCHMARK 2: Accessing a single value in a large hash structure\n" )
 
-number.of.lookups <- 1e3
+number.of.lookups <- 1e4
 bm2 <- data.frame()
 
 
@@ -108,10 +107,15 @@ for( size in 2^(1:13) ) {
   # CREATE NAMED-HASH:
   ha <- hash( keys[1:size], values[1:size] )
 
+  # CREATE DICT:
+  di <- dict()
+  for (i in 1:size) {
+    di[[ keys[i] ]] <- values[i]
+  }
+
   # CREATE A VECTOR
   ve <-  values[1:size]
   names(ve) <- keys[1:size]
-
 
   # CREATE KEYS TO LOOK UP:
   ke <- keys[ round(runif(max=size,min=1,n=number.of.lookups )) ]
@@ -121,6 +125,8 @@ for( size in 2^(1:13) ) {
       `get/env` = for( k in ke ) get( k, ha@.Data ) ,
       `get/hash`   = for( k in ke ) get(k, ha) ,
       `hash`  = for( k in ke ) ha[[k]] ,
+      `dict [[ ]]`  = for( k in ke ) di[[k]] ,
+      `dict get_or_stop`  = for( k in ke ) di$get_or_stop(k) ,
       `list`  = for( k in ke ) li[[k]] ,
       `vector`= for( k in ke ) ve[[k]] ,
       replications = 10 ,
@@ -132,22 +138,11 @@ for( size in 2^(1:13) ) {
 
 }
 
-xyplot(
-  elapsed ~ size, groups=test,
-  data=bm2,
-  type="b", pch=16:20, col=rainbow(5),
-  lwd=2, main="Reading from data structures", cex=1.2, cex.title=4,
-  auto.key=list(space = "right", points = FALSE, lines = FALSE, lwd=4, cex=1, col=rainbow(5)) ,
-  scales=list( cex=2 ),
-  ylab = "Elapsed Time ( per 1K Reads)" ,
-  xlab = "Object Size ( n elements )"
-)
-
-
-p <- ggplot(bm2 , aes(x=size, y=jitter(elapsed), group=test, color=test ))
-p + geom_line() + geom_point() + scale_x_log10() + ylab( "Ellapse Time(s)")
-
-
+p <- ggplot(bm2, aes(size, elapsed, color=test)) + geom_point()
+p <- p + ggtitle("Reading from data structures")
+p <- p + ylab(paste0("Elapsed Time (per ", number.of.lookups ," reads)"))
+p <- p + xlab("Object Size (n elements)")
+p
 
 cat("\n\n")
 
