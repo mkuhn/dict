@@ -20,7 +20,7 @@ if (!require("devtools")) install.packages("devtools")
 devtools::install_github("mkuhn/dict")
 ```
 
-This has been tested on Mac OS X (using clang) and Ubuntu (using gcc 4.8). Older versions of gcc might not work, due to incomplete support of C++11.
+This has been tested on Mac OS X (using clang) and Ubuntu (using gcc 4.8). Older versions of gcc might not work, due to incomplete support of C++11. On Windows, you will need the [new gcc 4.93 toolchain](https://github.com/rwinlib/r-base/wiki/Testing-Packages-with-Experimental-R-Devel-Build-for-Windows) or wait until R 3.3.0, to be released mid-April 2016.
 
 ### Usage
 
