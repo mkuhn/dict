@@ -4,8 +4,10 @@ dict <- function() {
   thisEnv <- environment()
   thisEnv$values <- list()
   thisEnv$idx_dict <- new(IdxDict)
-
-  thisEnv$idx_dict
+  thisEnv$get_or_zero <- thisEnv$idx_dict$get_or_zero
+  thisEnv$get_or_set_idx <- thisEnv$idx_dict$get_or_set_idx
+  thisEnv$keys <- thisEnv$idx_dict$keys
+  thisEnv$items <- thisEnv$idx_dict$items
 
   l <- list(
 
@@ -13,18 +15,18 @@ dict <- function() {
 
     set = function(key, value) {
       if (is.null(value)) stop("Cannot store NULL in dict!")
-      idx <- thisEnv$idx_dict$get_or_set_idx(key)
+      idx <- thisEnv$get_or_set_idx(key)
       thisEnv$values[[idx]] <- value
     },
 
     get = function(key, default_value=NULL) {
-      idx <- thisEnv$idx_dict$get_or_zero(key)
+      idx <- thisEnv$get_or_zero(key)
       if (idx == 0) return(default_value)
       thisEnv$values[[idx]]
     },
 
     get_or_stop = function(key) {
-      idx <- thisEnv$idx_dict$get_or_zero(key)
+      idx <- thisEnv$get_or_zero(key)
       if (idx == 0) stop(
         paste("Key error:", capture.output(print(key)))
       )
@@ -32,7 +34,7 @@ dict <- function() {
     },
 
     keys = function() {
-      thisEnv$idx_dict$keys()
+      thisEnv$keys()
     },
 
     values = function() {
@@ -40,7 +42,7 @@ dict <- function() {
     },
 
     items = function() {
-      lapply( thisEnv$idx_dict$items(), function(l) list(key=l$key, value = thisEnv$values[[l$value]] ))
+      lapply( thisEnv$items(), function(l) list(key=l$key, value = thisEnv$values[[l$value]] ))
     },
 
     length = function() {

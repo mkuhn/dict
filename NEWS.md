@@ -1,3 +1,7 @@
+# dict 0.9.0
+
+- initial benchmarking showed that `dict` was a lot slower than `hash`, but most of this was function lookups in R. Caching the function improved the lookup speed.
+
 # dict 0.8.0
 
 - New unified functions for NumVecDict: `each_mean`, `each_median`, `each_max`, `each_min` and the same for `inplace_...`
