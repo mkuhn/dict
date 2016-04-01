@@ -226,7 +226,7 @@ xyplot(
 
 cat( "BENCHMARK 3: [[ Single Element ]] <- Writes \n" )
 
-n.writes  <- 100
+n.writes  <- 10000
 bm4 <- data.frame()
 
 for( size in 2^(0:13) ) {
@@ -247,6 +247,9 @@ for( size in 2^(0:13) ) {
   # CREATE NAMED-HASH:
   ha <- hash( keys[1:size], values[1:size] )
 
+  # CREATE DICT:
+  di <- dict( keys[1:size], values[1:size] )
+
   # CREATE ENV
   en <- new.env( hash=TRUE )
   for( i in 1:size ) assign( keys[[i]], values[[i]],  en )
@@ -263,10 +266,11 @@ for( size in 2^(0:13) ) {
   print(
     res <-
       benchmark(
-        # `hash`   = for( ke in kes ) ha[[ ke ]] <- "a" ,
-        #  `list`   = for( ke in kes ) li[[ ke ]] <- "a" ,
+        `hash`   = for( ke in kes ) ha[[ ke ]] <- "a" ,
+        `dict`   = for( ke in kes ) di[[ ke ]] <- "a" ,
+        `list`   = for( ke in kes ) li[[ ke ]] <- "a" ,
         `vector` = for( ke in kes ) ve[[ ke ]] <- "a" ,
-        # `env/assign`   = for( ke in kes ) assign( ke, "a" , en ) ,
+        `env/assign`   = for( ke in kes ) assign( ke, "a" , en ) ,
         replications = 5 ,
         order = "relative"
       )

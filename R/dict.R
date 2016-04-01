@@ -1,5 +1,7 @@
 
-dict <- function() {
+dict <- function(init_keys = NULL, init_values = NULL) {
+
+  if (xor(is.null(init_keys), is.null(init_values))) stop("Need both keys and values!")
 
   thisEnv <- environment()
   thisEnv$values <- list()
@@ -8,6 +10,16 @@ dict <- function() {
   thisEnv$get_or_set_idx <- thisEnv$idx_dict$get_or_set_idx
   thisEnv$keys <- thisEnv$idx_dict$keys
   thisEnv$items <- thisEnv$idx_dict$items
+
+  if (!is.null(init_keys)) {
+    thisEnv$values <- as.list(init_values)
+    for (i in seq_along(init_keys)) {
+      thisEnv$get_or_set_idx(init_keys[[i]])
+    }
+  }
+
+  thisEnv$init_keys <- NULL
+  thisEnv$init_values <- NULL
 
   l <- list(
 

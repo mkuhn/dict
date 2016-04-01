@@ -1,3 +1,7 @@
+# dict 0.10.0
+
+- add option to initialize `dict` with keys and values
+
 # dict 0.9.0
 
 - initial benchmarking showed that `dict` was a lot slower than `hash`, but most of this was function lookups in R. Caching the function improved the lookup speed.

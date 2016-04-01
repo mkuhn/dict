@@ -12,6 +12,14 @@ test_that("Numbers as keys", {
   expect_equal( d$get(1:10), ":-)" )
 })
 
+test_that("Initialization", {
+  d <- dict( list( 1, c(2,3) ), list("A", "B") )
+  expect_true( is.null(d$get(2)) )
+  expect_equal( d$get(1), "A" )
+  expect_equal( d$get(c(2,3)), "B" )
+})
+
+
 test_that("Length", {
   d <- dict()
   d[[1]] <- 1

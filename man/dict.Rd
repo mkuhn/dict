@@ -9,9 +9,12 @@ Returns a dictionary in which numbers and string (including vectors of each) can
 and any R object can be used as value.
 }
 \usage{
-dict()
+dict(init_keys = NULL, init_values = NULL)
 }
-
+\arguments{
+  \item{init_keys}{Optional list of keys for initialization}
+  \item{init_values}{Optional list of values for initialization}
+}
 \value{
 A dictionary object that can be used to assign and extra values using either the \code{[[ ]]} operator
 or member functions accessed via \code{$}.

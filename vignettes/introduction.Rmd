@@ -45,10 +45,13 @@ The `dict` package exports two functions: `dict()` and `numvecdict()`. The forme
 
 ## Usage examples: `dict`
 
-To get a new, empty dictionary, call the `dict` function:
+To get a new, empty dictionary, call the `dict` function, optionally with argumebts for initialization:
 
 ```{r}
 library(dict)
+
+d <- dict( list("Initial", "keys"), list("Initial", "values") )
+
 d <- dict()
 ```
 

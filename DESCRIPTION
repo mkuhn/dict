@@ -1,16 +1,19 @@
 Package: dict
 Type: Package
 Title: Dictionary with arbitrary keys and values
-Version: 0.9.0
-Date: 2016-03-31
+Version: 0.10.0
+Date: 2016-04-01
 Author: Michael Kuhn
 Maintainer: Michael Kuhn <michael.kuhn@gmail.com>
-Description: A dictionary (or hash map) that supports arbitrary keys and values. Currently,
-  keys can be numbers, numeric vectors, strings, string vectors.
+Description: A dictionary (or hash map) that supports arbitrary keys and values.
+    Currently, keys can be numbers, numeric vectors, strings, string vectors.
 License: GPL (>= 2)
-Imports: methods, Rcpp (>= 0.12.4)
+Imports:
+    methods,
+    Rcpp (>= 0.12.4)
 LinkingTo: Rcpp, BH
-Suggests: testthat,
+Suggests:
+    testthat,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
