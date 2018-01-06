@@ -11,6 +11,10 @@ Under the hood, it creates a separate C++ `unordered_map` for the following type
 
 Please refer to the [introduction for an overview of the functions](vignettes/introduction.Rmd), or see below for a short usage example.
 
+### Note on this project
+
+This project is currently not being developed, and will probably never make it into CRAN. You might want to check out [this hashmap project](https://github.com/nathan-russell/hashmap), which is (as of early 2018) being maintained and in CRAN. A main difference between this project and hashmap is that here, you can use vectors as keys.
+
 ### Installation
 
 To install:
